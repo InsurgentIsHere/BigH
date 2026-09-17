@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACCESO RESTRINGIDO</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .container {
+      width: 90vw;
+      max-width: 600px;
+      height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dots {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      background-color: #888888;
+      border-radius: 50%;
+    }
+
+    .subtitle {
+      color: #888888;
+      letter-spacing: 4px;
+      font-size: 0.85rem;
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    .title-large {
+      color: #ffffff;
+      letter-spacing: 3px;
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      max-width: 320px;
+      padding: 14px;
+      margin-bottom: 15px;
+      border: 1px solid #333333;
+      background-color: #000000;
+      color: #888888;
+      font-family: inherit;
+      font-size: 0.85rem;
+      text-align: center;
+      letter-spacing: 3px;
+      outline: none;
+    }
+
+    input[type="password"]:focus {
+      border-color: #666666;
+      color: #ffffff;
+    }
+
+    button {
+      width: 100%;
+      max-width: 320px;
+      background-color: #000000;
+      color: #ffffff;
+      border: 1px solid #ffffff;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      letter-spacing: 4px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .error {
+      color: #ff4444;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      margin-top: 15px;
+      display: none;
+    }
+
+    #revelado {
+      display: none;
+    }
+
+    /* Galería con imagen central e imágenes secundarias */
+    .image-stage {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    /* Imagen principal con temblor/brote rápido */
+    .img-main {
+      width: auto;
+      max-width: 60%;
+      max-height: 48vh;
+      object-fit: contain;
+      border: 1px solid #222222;
+      pointer-events: none;
+      animation: badPiggiesBounce 0.38s infinite ease-in-out alternate;
+    }
+
+    /* Animación de la foto principal */
+    @keyframes badPiggiesBounce {
+      0% {
+        transform: translateY(0px);
+      }
+      100% {
+        transform: translateY(-12px);
+      }
+    }
+
+    /* Estilo para las mini imágenes laterales */
+    .mini-img {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      pointer-events: none;
+      top: 30%;
+    }
+
+    /* Mini foto izquierda (giro + bote + modo espejo) */
+    .mini-left {
+      left: 0;
+      animation: spinBounceLeft 0.75s infinite ease-in-out alternate;
+    }
+
+    /* Mini foto derecha (giro + bote normal) */
+    .mini-right {
+      right: 0;
+      animation: spinBounceRight 0.75s infinite ease-in-out alternate;
+    }
+
+    /* Animación mini izquierda (incluye scaleX(-1) para modo espejo) */
+    @keyframes spinBounceLeft {
+      0% {
+        transform: scaleX(-1) rotate(0deg) translateY(0px) scale(0.85);
+      }
+      50% {
+        transform: scaleX(-1) rotate(180deg) translateY(-25px) scale(1.25);
+      }
+      100% {
+        transform: scaleX(-1) rotate(360deg) translateY(0px) scale(0.85);
+      }
+    }
+
+    /* Animación mini derecha */
+    @keyframes spinBounceRight {
+      0% {
+        transform: rotate(0deg) translateY(0px) scale(0.85);
+      }
+      50% {
+        transform: rotate(-180deg) translateY(-25px) scale(1.25);
+      }
+      100% {
+        transform: rotate(-360deg) translateY(0px) scale(0.85);
+      }
+    }
+
+    /* Ocultamos totalmente el reproductor de YouTube */
+    #yt-player {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- Contenedor oculto para la API de YouTube -->
+  <div id="yt-player"></div>
+
+  <!-- Escena 1: Login -->
+  <div class="container" id="login">
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="subtitle">ACCESO RESTRINGIDO_</div>
+    <input type="password" id="pw" placeholder="CONTRASEÑA">
+    <button onclick="validar()">ACCEDER</button>
+    <p class="error" id="error-msg">CONTRASEÑA INCORRECTA</p>
+  </div>
+
+  <!-- Escena 2: Revelado -->
+  <div class="container" id="revelado">
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <div class="title-large">MR.H PARTY TIME!!</div>
+    
+    <div class="image-stage">
+      <!-- Mini foto izquierda (en modo espejo, girando y botando) -->
+      <img src="BigBro" alt="" class="mini-img mini-left" ondragstart="return false;">
+      
+      <!-- Foto principal -->
+      <img src="BigBro" alt="" class="img-main" ondragstart="return false;">
+      
+      <!-- Mini foto derecha (girando y botando) -->
+      <img src="BigBro" alt="" class="mini-img mini-right" ondragstart="return false;">
+    </div>
+  </div>
+
+  <script>
+    let player;
+    let isReady = false;
+    let audioStarted = false;
+
+    // Cargar la API de YouTube
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        videoId: 'dMEXXRj8s3k', // ID de Bad Piggies Theme
+        playerVars: {
+          'autoplay': 1,
+          'controls': 0,
+          'loop': 1,
+          'playlist': 'dMEXXRj8s3k'
+        },
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      isReady = true;
+      event.target.playVideo();
+    }
+
+    function arrancarAudio() {
+      if (!audioStarted && isReady && player) {
+        player.playVideo();
+        audioStarted = true;
+      }
+    }
+
+    // Escucha cualquier interacción inicial para arrancar la música de fondo
+    window.addEventListener('click', arrancarAudio);
+    window.addEventListener('touchstart', arrancarAudio);
+    window.addEventListener('keydown', arrancarAudio);
+
+    function validar() {
+      arrancarAudio();
+      const input = document.getElementById('pw').value;
+      const loginCard = document.getElementById('login');
+      const reveladoCard = document.getElementById('revelado');
+      const errorMsg = document.getElementById('error-msg');
+
+      if (input.trim() === "Mr.H" || input.trim().toUpperCase() === "MR.H") {
+        loginCard.style.display = "none";
+        reveladoCard.style.display = "flex";
+      } else {
+        errorMsg.style.display = "block";
+      }
+    }
+
+    document.getElementById('pw').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        validar();
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault();
+      }
+    });
+  </script>
+
+</body>
+</html>

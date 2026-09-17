@@ -12,10 +12,9 @@
       -webkit-touch-callout: none;
     }
 
+    /* Fondo inicial completamente negro */
     body {
-      background: linear-gradient(45deg, #000000, #1a0033, #000000);
-      background-size: 400% 400%;
-      animation: gradientBG 5s ease infinite;
+      background-color: #000000;
       color: #ffffff;
       font-family: 'Courier New', Courier, monospace;
       margin: 0;
@@ -25,6 +24,14 @@
       align-items: center;
       text-align: center;
       overflow: hidden;
+      transition: background 0.5s ease;
+    }
+
+    /* Fondo animado solo para la escena de fiesta */
+    body.party-mode {
+      background: linear-gradient(45deg, #050505, #2a004f, #001133, #3b002c);
+      background-size: 400% 400%;
+      animation: gradientBG 4s ease infinite;
     }
 
     @keyframes gradientBG {
@@ -64,7 +71,6 @@
       text-transform: uppercase;
     }
 
-    /* Título estilo fiesta con parpadeo */
     .title-large {
       color: #00ffcc;
       letter-spacing: 3px;
@@ -133,7 +139,6 @@
       display: none;
     }
 
-    /* Escenario de fiesta */
     .image-stage {
       position: relative;
       display: flex;
@@ -143,7 +148,6 @@
       margin-top: 10px;
     }
 
-    /* Foto principal */
     .img-main {
       width: auto;
       max-width: 50%;
@@ -164,7 +168,6 @@
       }
     }
 
-    /* Mini fotos de los lados (aumentadas x1.65: 215px) */
     .mini-img {
       position: absolute;
       width: 215px;
@@ -173,43 +176,29 @@
       pointer-events: none;
     }
 
-    /* Mini foto izquierda */
     .mini-left {
       left: -40px;
       animation: spinContinuousLeft 0.8s infinite linear, partyBounceMini 0.3s infinite ease-in-out alternate;
     }
 
-    /* Mini foto derecha (modo espejo) */
     .mini-right {
       right: -40px;
       animation: spinContinuousRight 0.8s infinite linear, partyBounceMini 0.3s infinite ease-in-out alternate;
     }
 
     @keyframes spinContinuousLeft {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     @keyframes spinContinuousRight {
-      0% {
-        transform: scaleX(-1) rotate(0deg);
-      }
-      100% {
-        transform: scaleX(-1) rotate(-360deg);
-      }
+      0% { transform: scaleX(-1) rotate(0deg); }
+      100% { transform: scaleX(-1) rotate(-360deg); }
     }
 
     @keyframes partyBounceMini {
-      0% {
-        top: 15%;
-      }
-      100% {
-        top: 0%;
-      }
+      0% { top: 15%; }
+      100% { top: 0%; }
     }
 
     #yt-player {
@@ -221,7 +210,7 @@
     }
   </style>
 </head>
-<body oncontextmenu="return false;">
+<body id="main-body" oncontextmenu="return false;">
 
   <div id="yt-player"></div>
 
@@ -257,7 +246,6 @@
   <script>
     let player;
     let isReady = false;
-    let audioStarted = false;
 
     var tag = document.createElement('script');
     tag.src = "https://www.youtube.com/iframe_api";
@@ -268,50 +256,36 @@
       player = new YT.Player('yt-player', {
         videoId: 'dMEXXRj8s3k',
         playerVars: {
-          'autoplay': 1,
+          'autoplay': 0,
           'controls': 0,
           'loop': 1,
-          'playlist': 'dMEXXRj8s3k',
-          'start': 1
+          'playlist': 'dMEXXRj8s3k'
         },
         events: {
-          'onReady': onPlayerReady
+          'onReady': function() { isReady = true; }
         }
       });
     }
 
-    function onPlayerReady(event) {
-      isReady = true;
-      event.target.seekTo(1);
-      event.target.playVideo();
-    }
-
-    function arrancarAudio() {
-      if (!audioStarted && isReady && player) {
-        player.seekTo(1);
-        player.playVideo();
-        audioStarted = true;
-      }
-    }
-
-    window.addEventListener('click', arrancarAudio);
-    window.addEventListener('touchstart', arrancarAudio);
-    window.addEventListener('keydown', arrancarAudio);
-
     function validar() {
-      if (isReady && player) {
-        player.seekTo(1);
-        player.playVideo();
-      }
-      
       const input = document.getElementById('pw').value;
       const loginCard = document.getElementById('login');
       const reveladoCard = document.getElementById('revelado');
       const errorMsg = document.getElementById('error-msg');
+      const body = document.getElementById('main-body');
 
       if (input.trim() === "Mr.H" || input.trim().toUpperCase() === "MR.H") {
         loginCard.style.display = "none";
         reveladoCard.style.display = "flex";
+        
+        // Cambia el fondo a modo fiesta
+        body.classList.add('party-mode');
+
+        // Reproduce la música empezando en el segundo 1
+        if (isReady && player) {
+          player.seekTo(1);
+          player.playVideo();
+        }
       } else {
         errorMsg.style.display = "block";
       }
